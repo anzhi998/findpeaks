@@ -5,30 +5,34 @@
 #include <numeric>
 #include <set>
 #include <algorithm>
-template <class T>
+
 /*
  *  src: 	input array
  *  distance:	minpeakdistance
  *  
  *  return:	peak_index array
 */
+template <class T>
 std::vector<int> findPeaks(const std::vector<T> &src, int distance=0);
-
+template <class T>
 std::vector<int> findPeaks(const std::vector<T> &src, int distance)
 {
     int length=src.size();
-    std::vector<int> sign(length-1,-1);
+    if(length<=1) return std::vector<int>(src);
+    //we dont need peaks at start and end points
+    std::vector<int> sign(length-2,-1);
     std::vector<T> difference(length,0);
     std::vector<int> temp_out;
-    //first-order difference
+    //first-order difference (sign)
     adjacent_difference(src.begin(),src.end(),difference.begin());
     difference.erase(difference.begin());
+    difference.pop_back();
     for (int i = 0; i < difference.size(); ++i) {
         if(difference[i]>=0) sign[i]=1;
     }
     //second-order difference
     T  diff2 = 0;
-    for (int j = 1; j < length; ++j)
+    for (int j = 1; j < length-1; ++j)
     {
         int  diff = sign[j] - sign[j - 1];
         diff2 += difference[j-1];
