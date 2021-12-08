@@ -18,7 +18,7 @@ template <class T>
 std::vector<int> findPeaks(const std::vector<T> &src, int distance)
 {
     int length=src.size();
-    if(length<=1) return std::vector<int>(src);
+    if(length<=1) return std::vector<int>();
     //we dont need peaks at start and end points
     std::vector<int> sign(length-2,-1);
     std::vector<T> difference(length,0);
