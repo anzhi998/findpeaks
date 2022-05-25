@@ -3,7 +3,7 @@
 //
 #include <vector>
 #include <numeric>
-#include <set>
+#include <unordered_map>
 #include <algorithm>
 
 /*
@@ -13,16 +13,16 @@
  *  return:	peak_index array
 */
 template <class T>
-std::vector<int> findPeaks(const std::vector<T> &src, int distance=0);
+std::vector<size_t> findPeaks(const std::vector<T> &src, int distance=0);
 template <class T>
-std::vector<int> findPeaks(const std::vector<T> &src, int distance)
+std::vector<size_t> findPeaks(const std::vector<T> &src, int distance)
 {
-    int length=src.size();
-    if(length<=1) return std::vector<int>();
+    size_t length=src.size();
+    if(length<=1) return std::vector<size_t>();
     //we dont need peaks at start and end points
-    std::vector<int> sign(length-2,-1);
+    std::vector<int> sign(length,-1);
     std::vector<T> difference(length,0);
-    std::vector<int> temp_out;
+    std::vector<size_t> temp_out;
     //first-order difference (sign)
     adjacent_difference(src.begin(),src.end(),difference.begin());
     difference.erase(difference.begin());
@@ -38,39 +38,36 @@ std::vector<int> findPeaks(const std::vector<T> &src, int distance)
         diff2 += difference[j-1];
         if ((diff < 0) && diff2 != 0) {
             temp_out.push_back(j);
-        } 
+        }
     }
-    
     if(temp_out.size()==0 || distance==0 ) return temp_out;
-    
     //sort peaks from large to small by src value at peaks
-    sort(temp_out.begin(),temp_out.end(),[&src](int a,int b){
-        return src[a]>=src[b];
+    std::sort(temp_out.begin(),temp_out.end(),[&src](size_t a,size_t b){
+        return (src[a]>src[b]);
     });
 
-    std::vector<int> ans;
-    std::set<int> except;
+    std::vector<size_t> ans;
+
 
     //Initialize the answer and the collection to be excluded
-
-    ans.push_back(temp_out[0]);
-    int left=std::max(0,temp_out[0]-distance);
-    int right=std::min(length-1,temp_out[0]+distance);
-    for (int i = left;i<=right; ++i) {
-        except.insert(i);
-    }
-    for (int i = 1; i < temp_out.size(); ++i) {
-        auto it=except.find(temp_out[i]);
-	// if not in except
-	// add it to the answer and update except
-        if(it==except.end())
+    //ans.push_back(temp_out[0]);
+    std::unordered_map<size_t ,int> except;
+////    int left=temp_out[0]-distance>0? temp_out[0]-distance:0;
+////    int right=temp_out[0]+distance>length-1? length-1:temp_out[0]+distance;
+//    int left=temp_out[0]-distance;
+//    int right=temp_out[0]+distance;
+//    for (int i = left;i<=right; ++i) {
+//        except.insert(i);
+//    }
+    for (auto it:temp_out) {
+        if(!except.count(it))//如果不在排除范围内
         {
-            ans.push_back(temp_out[i]);
-            int left=std::max(0,temp_out[i]-distance);
-            int right=std::min(length-1,temp_out[i]+distance);
-            for (int j = left;j<=right; ++j) {
-                except.insert(j);
-            }
+            ans.push_back(it);
+            //更新
+            size_t left=it-distance>0? it-distance:0;
+            size_t right=it+distance>length-1? length-1:it+distance;
+            for(size_t i=left;i<=right;++i)
+                ++except[i];
         }
     }
     //sort the ans from small to large by index value
