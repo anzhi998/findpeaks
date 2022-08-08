@@ -31,12 +31,10 @@ std::vector<size_t> findPeaks(const std::vector<T> &src, int distance)
         if(difference[i]>=0) sign[i]=1;
     }
     //second-order difference
-    T  diff2 = 0;
     for (int j = 1; j < length-1; ++j)
     {
         int  diff = sign[j] - sign[j - 1];
-        diff2 += difference[j-1];
-        if ((diff < 0) && diff2 != 0) {
+        if (diff < 0) {
             temp_out.push_back(j);
         }
     }
